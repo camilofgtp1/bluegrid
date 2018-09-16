@@ -1,10 +1,18 @@
+import com.sun.javafx.scene.control.skin.CellSkinBase;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.ArrayList;
 
-public class Main {
+public class Maze {
 
+    //
+    public static void checkNeighbours(Cell current, ArrayList<Cell> index){
 
+        if(current.marked){
+
+        }
+    }
 
     public static void main(String[] args){
 
@@ -15,10 +23,9 @@ public class Main {
 
         background.setBackground(Color.blue);
 
-        int cols=20;
-        int rows = 20;
-        int cellSize=40;
-
+        int cols=10;
+        int rows = 10;
+        int cellSize=50;
 
         GridLayout grid = new GridLayout(rows,cols,0,0);
         background.setLayout(grid);
@@ -36,18 +43,14 @@ public class Main {
             }
         }
 
-        Cell current= new Cell(cellSize);
+        Cell current=index.get(0);
 
-        current=index.get(0);
-        current.visited=true;
+        current.marked=true;
 
         frame.setVisible(true);
         frame.setLocationRelativeTo(null);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setResizable(false);
         frame.pack();
-
-
-
     }
 }

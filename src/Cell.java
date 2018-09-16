@@ -14,6 +14,7 @@ public class Cell extends JPanel {
 
     private boolean[] walls;
     public boolean visited;
+    public boolean marked;
 
     Cell(int size) {
 
@@ -26,11 +27,15 @@ public class Cell extends JPanel {
 
         walls=new boolean[]{true, true, true, true };
         visited =false;
+        marked= false;
 
         this.setPreferredSize(new Dimension(size, size));
 
     }
 
+    public void checkNeighbours(Cell ref){
+
+    }
 
     public void paintComponent(Graphics g) {
 
@@ -57,9 +62,14 @@ public class Cell extends JPanel {
             }
 
             if(visited==true) {
-                g1.setColor(Color.white);
+                g1.setColor(Color.CYAN);
                 g1.fillRect(2, 2, size-3, size-3);
             }
+            if(marked==true) {
+                g1.setColor(Color.red);
+                g1.fillRect(2, 2, size-3, size-3);
+            }
+
 
     }
 
