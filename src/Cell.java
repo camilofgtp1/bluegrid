@@ -38,16 +38,6 @@ public class Cell extends JPanel {
         this.setPreferredSize(new Dimension(size, size));
     }
 
-    //if cell is marked as active then get unvisited neighbors
-
-    /*The main index ArrayList contains another list for each col
-     *each of them contains the Cells created in the loop.
-     * Each cell can be visited and only one cell can be the active cell
-     * */
-
-    /*needs to know the list to check the indexes and give back the neighbors indexes back
-     * active cell indexes as parameters and then add to 2d arraylist an arraylist of indexes of posible neighbors
-     * [[x, y], [x1,y1], [x2, y2]]*/
 
     //return a list of unvisited Cells around this Cell calling it
     public Cell[] getOpenPositions(Cell[][] gridList) {
@@ -61,26 +51,26 @@ public class Cell extends JPanel {
 
         if (currentY == 0) top = null;
         else top = gridList[currentY-1][currentX];
-        freePositions[0] = top;
+        if(!top.visited) freePositions[0] = top;
 
-        if (currentX == gridList.length) right = null;
+
+        if (currentX == gridList.length-1) right = null;
         else right = gridList[currentY][currentX+1];
-        freePositions[1] = right;
+        if(!right.visited)freePositions[1] = right;
 
-        if (currentY == gridList[0].length) bottom = null;
+        if (currentY == gridList[0].length-1) bottom = null;
         else bottom = gridList[currentY+1][currentX];
-        freePositions[2] = bottom;
+        if(!bottom.visited)freePositions[2] = bottom;
 
         if (currentX == 0) left = null;
-        else left = gridList[currentX - 1][currentY + 1];
-        freePositions[3] = left;
+        else left = gridList[currentY][currentX-1];
+        if(!left.visited)freePositions[3] = left;
 
         return freePositions;
     }
 
-    public void toggleVisited() {
-        if (!this.visited) this.visited = true;
-        else this.visited = false;
+    public void markVisited() {
+         this.visited = true;
     }
 
     public void toggleActive() {

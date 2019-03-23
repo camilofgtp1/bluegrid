@@ -13,12 +13,12 @@ public class Maze {
 
         backgroundPanel.setBackground(Color.blue);
 
-        int columns = 5;  //j
+        int columns = 10;  //j
         int rows = 10;   //i
         int cellSize = 50;
 
         int currentX = 0;
-        int currentY = 6;
+        int currentY = 0;
 
         Cell[][] gridList;
         gridList = new Cell[rows][columns];
@@ -42,21 +42,22 @@ public class Maze {
             }
         }
 
-        /*Cell currentCell = gridList[currentY][currentX];
+        Cell currentCell = gridList[currentY][currentX];
         currentCell.toggleStart();
-        currentCell.toggleVisited();
+        currentCell.markVisited();
         currentCell.toggleActive();
 
         Cell[] freeNeighbors = currentCell.getOpenPositions(gridList);
 
+
+        /****Test the freeNeighbours**/
         System.out.println("free neighbors: ");
         if (freeNeighbors != null) {
             for (Cell c : freeNeighbors) {
-                if(c!=null) System.out.println("X: " +c.getX() + "Y: " + c.getY() + "/n");
-
+                if(c!=null) System.out.println("X= " +c.x() + "Y= " + c.y() + "\n");
             }
         }
-*/
+
         appWindow.setVisible(true);
         appWindow.setLocationRelativeTo(null);
         appWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
