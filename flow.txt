@@ -1,0 +1,19 @@
+Cell
+size; walls; visited; starting; current;x;y;
+
+checkNeighbours()
+paintComponent()
+
+
+
+main
+background panel set to gridlayout
+for loop :
+    - creates arraylist of cells for each column
+    - add new cells for each in arraylist
+
+checkNeighbours():
+use current cell, pass the cell list
+then
+check that the current cell indexes are not smaller of bigger than the size of the cell grid
+if so then cell is null, else cells are referenced to the grid and added to the returned list

@@ -1,56 +1,66 @@
-import com.sun.javafx.scene.control.skin.CellSkinBase;
-
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
 
 public class Maze {
 
-    //
-    public static void checkNeighbours(Cell current, ArrayList<Cell> index){
+    public static void main(String[] args) {
 
-        if(current.marked){
+        JFrame appWindow = new JFrame("Grid");
+        JPanel backgroundPanel = new JPanel();
 
-        }
-    }
+        appWindow.add(backgroundPanel);
+        //appWindow.getContentPane().add(backgroundPanel);
 
-    public static void main(String[] args){
+        backgroundPanel.setBackground(Color.blue);
 
-        JFrame frame = new JFrame("Maze");
-        JPanel background = new JPanel();
-        frame.add(background);
-        //frame.getContentPane().add(background);
+        int columns = 5;  //j
+        int rows = 10;   //i
+        int cellSize = 50;
 
-        background.setBackground(Color.blue);
+        int currentX = 0;
+        int currentY = 6;
 
-        int cols=10;
-        int rows = 10;
-        int cellSize=50;
+        Cell[][] gridList;
+        gridList = new Cell[rows][columns];
 
-        GridLayout grid = new GridLayout(rows,cols,0,0);
-        background.setLayout(grid);
+        GridLayout gridLines = new GridLayout(rows, columns, 0, 0); //rows, cols, hgap, vgap
+        backgroundPanel.setLayout(gridLines);
 
-        frame.add(background);
-        ArrayList<Cell> index= new ArrayList<>();
+        appWindow.add(backgroundPanel);
 
-        for(int i=0;i<rows;i++){
-            for (int j =0; j<cols;j++){
+        //Cloner cell populates the grid with cells
+        for (int i = 0; i < rows; i++) { //rows are horizontal and correspond to the y axis
+            for (int j = 0; j < columns; j++) { // cols are vertical correspond to the x axis
 
-                Cell c = new Cell(cellSize);
-                background.add(c);
-                index.add(c);
+                Cell clonerCell = new Cell(cellSize, j, i);
 
+                //add newly created cells to the arraylists<Cell>
+                gridList[i][j] = clonerCell;
+
+                //add Cell panel to Background Jpanel
+                backgroundPanel.add(clonerCell);
             }
         }
 
-        Cell current=index.get(0);
+        /*Cell currentCell = gridList[currentY][currentX];
+        currentCell.toggleStart();
+        currentCell.toggleVisited();
+        currentCell.toggleActive();
 
-        current.marked=true;
+        Cell[] freeNeighbors = currentCell.getOpenPositions(gridList);
 
-        frame.setVisible(true);
-        frame.setLocationRelativeTo(null);
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setResizable(false);
-        frame.pack();
+        System.out.println("free neighbors: ");
+        if (freeNeighbors != null) {
+            for (Cell c : freeNeighbors) {
+                if(c!=null) System.out.println("X: " +c.getX() + "Y: " + c.getY() + "/n");
+
+            }
+        }
+*/
+        appWindow.setVisible(true);
+        appWindow.setLocationRelativeTo(null);
+        appWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        appWindow.setResizable(false);
+        appWindow.pack();
     }
 }
