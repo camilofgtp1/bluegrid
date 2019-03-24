@@ -51,20 +51,23 @@ public class Cell extends JPanel {
 
         if (currentY == 0) top = null;
         else top = gridList[currentY-1][currentX];
-        if(!top.visited) freePositions[0] = top;
 
+        if(  top!=null && !top.visited) freePositions[0] = top;
 
         if (currentX == gridList.length-1) right = null;
         else right = gridList[currentY][currentX+1];
-        if(!right.visited)freePositions[1] = right;
+
+        if(right!=null && !right.visited)freePositions[1] = right;
 
         if (currentY == gridList[0].length-1) bottom = null;
         else bottom = gridList[currentY+1][currentX];
-        if(!bottom.visited)freePositions[2] = bottom;
+
+        if(bottom !=null && !bottom.visited)freePositions[2] = bottom;
 
         if (currentX == 0) left = null;
         else left = gridList[currentY][currentX-1];
-        if(!left.visited)freePositions[3] = left;
+
+        if(left!=null && !left.visited)freePositions[3] = left;
 
         return freePositions;
     }
