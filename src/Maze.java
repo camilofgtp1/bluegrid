@@ -1,6 +1,8 @@
-import javax.swing.*;
-import java.awt.*;
-import java.util.Random;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.GridLayout;
 
 public class Maze implements Runnable {
 
@@ -17,12 +19,15 @@ public class Maze implements Runnable {
     private JPanel backgroundPanel;
     private boolean running;
     private Dimension windowSize;
+    private int strokeWidth;
+    private Cell currentCell;
+    private Cell nextCell;
 
-    public Maze(int cols, int row, int size, int startX, int startY) {
+    public Maze(int cols, int row, int size, int startX, int startY, int strokeWidth) {
 
         appWindow = new JFrame("Grid");
         backgroundPanel = new JPanel();
-
+        this.strokeWidth = strokeWidth;
         appWindow.add(backgroundPanel);
         //appWindow.getContentPane().add(backgroundPanel);
 
@@ -35,11 +40,8 @@ public class Maze implements Runnable {
         currentX = startX;
         currentY = startY;
 
-        windowSize = new Dimension(columns*cellSize, row*cellSize);
+        windowSize = new Dimension(rows * cellSize + (row), columns * cellSize + (columns));
         running = true;
-
-
-
 
         gridList = new Cell[rows][columns];
 
@@ -48,17 +50,10 @@ public class Maze implements Runnable {
 
         appWindow.add(backgroundPanel);
 
-        appWindow.setVisible(true);
-        appWindow.setLocationRelativeTo(null);
-        appWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        appWindow.setResizable(true);
-        appWindow.setPreferredSize(windowSize);
-        appWindow.pack();
-
         for (int i = 0; i < this.rows; i++) { //rows are horizontal and correspond to the y axis
             for (int j = 0; j < columns; j++) { // cols are vertical correspond to the x axis
 
-                Cell clonerCell = new Cell(cellSize, j, i);
+                Cell clonerCell = new Cell(cellSize, j, i, this.strokeWidth);
 
                 //add newly created cells to the arraylists<Cell>
                 gridList[i][j] = clonerCell;
@@ -68,32 +63,46 @@ public class Maze implements Runnable {
             }
         }
 
-    }
+        appWindow.setVisible(true);
+        appWindow.setLocationRelativeTo(null);
+        appWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        appWindow.setResizable(false);
+        appWindow.setPreferredSize(windowSize);
+        appWindow.pack();
 
-    public static Cell chooseRandom(Cell[] list) {
-        Random r = new Random();
-
-        int rand = r.nextInt(4);
-        while (list[rand] == null) {
-            rand = r.nextInt(4);
-            return list[rand];
-        }
-        return list[rand];
+        currentCell = gridList[currentY][currentX];
     }
 
     @Override
     public void run() {
 
-        Cell currentCell = gridList[currentY][currentX];
-        currentCell.toggleStart();
+        //define and colour first cell
+        currentCell.toggleCurrent();
         currentCell.markVisited();
-        currentCell.toggleActive();
-        Cell[] freeNeighbors = currentCell.getOpenPositions(gridList);
 
-        Cell nextCell = chooseRandom(freeNeighbors);
-        if (nextCell != null) {
-            nextCell.markVisited();
-            currentCell = nextCell;
+        int i = 0;
+        //Choose next random cell, make it current
+
+
+        while (running) {
+            try {
+                nextCell = currentCell.getNextCell(gridList);
+                if (currentCell != null) {
+                    currentCell = nextCell;
+                    currentCell.toggleCurrent();
+                    currentCell.toggleCurrent();
+                    currentCell.markVisited();
+                }
+                currentCell.repaint();
+                try {
+                    Thread.sleep(200);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }catch (NullPointerException e){
+                    e.printStackTrace();
+            }
         }
     }
+
 }
