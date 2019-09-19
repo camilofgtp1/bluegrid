@@ -1,10 +1,12 @@
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.GridLayout;
+import java.awt.*;
 
-public class Maze implements Runnable {
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.Stack;
+
+public class Maze implements Runnable, ActionListener {
 
     private int columns;  //j
     private int rows;   //i
@@ -23,15 +25,17 @@ public class Maze implements Runnable {
     private Cell currentCell;
     private Cell nextCell;
 
+    private Stack<Cell> stack;
+
+
     public Maze(int cols, int row, int size, int startX, int startY, int strokeWidth) {
 
         appWindow = new JFrame("Grid");
         backgroundPanel = new JPanel();
         this.strokeWidth = strokeWidth;
         appWindow.add(backgroundPanel);
-        //appWindow.getContentPane().add(backgroundPanel);
 
-        backgroundPanel.setBackground(Color.blue);
+        backgroundPanel.setBackground(Color.BLACK);
 
         columns = cols;  //j
         rows = row;   //i
@@ -39,13 +43,16 @@ public class Maze implements Runnable {
 
         currentX = startX;
         currentY = startY;
+        this.stack= new Stack<>();
 
-        windowSize = new Dimension(rows * cellSize + (row), columns * cellSize + (columns));
+        windowSize = new Dimension((rows * cellSize), (columns * cellSize));
         running = true;
 
         gridList = new Cell[rows][columns];
 
-        gridLines = new GridLayout(rows, columns, 0, 0); //rows, cols, hgap, vgap
+        gridLines = new GridLayout(rows, columns, 0, 0);
+        System.out.println(gridLines.toString() + " grid string");
+        //rows, cols, hgap, vgap
         backgroundPanel.setLayout(gridLines);
 
         appWindow.add(backgroundPanel);
@@ -55,6 +62,7 @@ public class Maze implements Runnable {
 
                 Cell clonerCell = new Cell(cellSize, j, i, this.strokeWidth);
 
+                clonerCell.repaint();
                 //add newly created cells to the arraylists<Cell>
                 gridList[i][j] = clonerCell;
 
@@ -66,43 +74,55 @@ public class Maze implements Runnable {
         appWindow.setVisible(true);
         appWindow.setLocationRelativeTo(null);
         appWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        appWindow.setResizable(false);
+        appWindow.setResizable(true);
         appWindow.setPreferredSize(windowSize);
         appWindow.pack();
 
         currentCell = gridList[currentY][currentX];
     }
 
-    @Override
-    public void run() {
 
-        //define and colour first cell
-        currentCell.toggleCurrent();
+
+    @Override
+    public void run() throws NullPointerException {
+
+        //@TODO: Optimize loop
+        //define and color first cell
         currentCell.markVisited();
 
-        int i = 0;
         //Choose next random cell, make it current
-
-
         while (running) {
-            try {
-                nextCell = currentCell.getNextCell(gridList);
-                if (currentCell != null) {
-                    currentCell = nextCell;
-                    currentCell.toggleCurrent();
-                    currentCell.toggleCurrent();
-                    currentCell.markVisited();
-                }
+            nextCell = currentCell.getNextCell(gridList);
+            stack.push(nextCell);
+
+            if (nextCell != null) {
+                currentCell.connect(nextCell);
+                currentCell.markVisited();
                 currentCell.repaint();
-                try {
-                    Thread.sleep(200);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }catch (NullPointerException e){
-                    e.printStackTrace();
+                System.out.println("top "+ currentCell.getWalls()[0]);
+                System.out.println("right "+ currentCell.getWalls()[1]);
+                System.out.println("bottom "+ currentCell.getWalls()[2]);
+                System.out.println("left "+ currentCell.getWalls()[3 ]);
+
             }
+            if(stack.contains(nextCell)){
+                currentCell = nextCell;
+            }
+
+            try {
+                Thread.sleep(2500);
+            } catch (InterruptedException e){
+                e.printStackTrace();
+            }
+
+            System.out.println("******************************End*****************************************");
+
         }
     }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
+       //@todo: add on space pause maze generation
+
+    }
 }

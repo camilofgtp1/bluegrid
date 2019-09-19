@@ -3,6 +3,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.geom.Line2D;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Random;
 
 public class Cell extends JPanel implements ActionListener {
@@ -11,6 +13,7 @@ public class Cell extends JPanel implements ActionListener {
     private Line2D right;
     private Line2D bottom;
     private Line2D left;
+
     private int strokeWidth;
     private int size;
     private int x;
@@ -20,19 +23,29 @@ public class Cell extends JPanel implements ActionListener {
     private boolean visited; //paint cyan
     private boolean current; //paint red
 
+    private final int MARGIN;
+
+
+    private ArrayList<Line2D> cellSides;
+
     private Timer timer;
 
     Cell(int size, int x, int y, int stroke) {
 
         this.x = x;
         this.y = y;
-        this.strokeWidth= stroke;
+        this.strokeWidth = stroke;
+        cellSides= new ArrayList<>();
 
-        top = new Line2D.Float(0, 0, size, 0);
+        top = new Line2D.Float(0, 0, size-strokeWidth, 0);
         right = new Line2D.Float(size, 0, size, size);
         bottom = new Line2D.Float(size, size, 0, size);
         left = new Line2D.Float(0, size, 0, 0);
-
+        cellSides.add(top);
+        cellSides.add(right);
+        cellSides.add(bottom);
+        cellSides.add(left);
+        
         this.size = size;
         this.timer = new Timer(5, this);
         walls = new boolean[]{true, true, true, true};
@@ -43,10 +56,10 @@ public class Cell extends JPanel implements ActionListener {
     }
 
     //return a list of unvisited Cells around this Cell calling it
-    public Cell getNextCell(Cell[][] gridList){
+    public Cell getNextCell(Cell[][] gridList) {
 
         Cell[] freePositions = new Cell[4];
-        Cell nextCell;
+        Cell nextCell = null;
 
         int currentX = this.x;
         int currentY = this.y;
@@ -54,41 +67,42 @@ public class Cell extends JPanel implements ActionListener {
         Cell top, right, bottom, left;
 
         if (currentY == 0) top = null;
-        else top = gridList[currentY-1][currentX];
+        else top = gridList[currentY - 1][currentX];
+        if (top != null && !top.visited) freePositions[0] = top;
 
-        if(  top!=null && !top.visited) freePositions[0] = top;
+        if (currentX == gridList.length - 1) right = null;
+        else right = gridList[currentY][currentX + 1];
+        if (right != null && !right.visited) freePositions[1] = right;
 
-        if (currentX == gridList.length-1) right = null;
-        else right = gridList[currentY][currentX+1];
-
-        if(right!=null && !right.visited)freePositions[1] = right;
-
-        if (currentY == gridList[0].length-1) bottom = null;
-        else bottom = gridList[currentY+1][currentX];
-
-        if(bottom !=null && !bottom.visited)freePositions[2] = bottom;
+        if (currentY == gridList[0].length - 1) bottom = null;
+        else bottom = gridList[currentY + 1][currentX];
+        if (bottom != null && !bottom.visited) freePositions[2] = bottom;
 
         if (currentX == 0) left = null;
-        else left = gridList[currentY][currentX-1];
+        else left = gridList[currentY][currentX - 1];
+        if (left != null && !left.visited) freePositions[3] = left;
 
-        if(left!=null && !left.visited)freePositions[3] = left;
+        while (nextCell == null) {
+            nextCell = chooseRandom(freePositions);
+        }
 
-        nextCell= chooseRandom(freePositions);
         return nextCell;
     }
+
 
     public static Cell chooseRandom(Cell[] list) {
         Random r = new Random();
         int rand = r.nextInt(4);
         while (list[rand] == null) {
             rand = r.nextInt(4);
+
             return list[rand];
         }
         return list[rand];
     }
 
     public void markVisited() {
-         this.visited = true;
+        this.visited = true;
     }
 
     public void toggleCurrent() {
@@ -96,20 +110,32 @@ public class Cell extends JPanel implements ActionListener {
         else this.current = false;
     }
 
+    public boolean[] getWalls() {
+        return walls;
+    }
+
+    public void setWalls(boolean[] walls) {
+
+        this.walls = walls;
+    }
+
     /*public void toggleStart() {
         if (!this.current) this.current = true;
         else this.current = false;
     }*/
-    public int x(){
+    public int x() {
         return this.x;
     }
-    public int y(){
+
+    public int y() {
         return this.y;
     }
 
-    public int getStrokeWidth(){
+    public int getStrokeWidth() {
         return this.strokeWidth;
     }
+
+
 
     public void paintComponent(Graphics g) {
         timer.start();
@@ -117,30 +143,71 @@ public class Cell extends JPanel implements ActionListener {
         Graphics2D g1 = (Graphics2D) g;
         g1.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g1.setStroke(new BasicStroke(this.strokeWidth));
-        g1.setColor(Color.black);
-
-        if (walls[0]) {
-            g1.draw(top);
-        }
-        if (walls[1]) {
-            g1.draw(right);
-        }
-        if (walls[2]) {
-            g1.draw(bottom);
-        }
-        if (walls[3]) {
-            g1.draw(left);
-        }
 
         if (visited == true) {
-            g1.setColor(Color.CYAN);
-            g1.fillRect(2, 2, size - 3, size - 3);
+            //g1.setColor(Color.CYAN);
+            //g1.fillRect(2, 2, size - 3, size - 3);
+            this.setBackground(Color.orange);
+
         }
         if (current == true) {
             g1.setColor(Color.red);
             g1.fillRect(2, 2, size - 3, size - 3);
         }
+
+        for (int i =0; i <walls.length;i++){
+
+            if(walls[i]==true){
+                g1.setColor(Color.blue);
+                g1.draw(cellSides.get(i));
+            } else {
+                g1.setColor(Color.cyan);
+                g1.draw(cellSides.get(i));
+            }
+        }
     }
+
+
+    public void connect(Cell next) {
+
+        System.out.println("this x :" + this.x + " next x: " + next.x);
+        System.out.println("this y : " + this.y + " next y: " + next.y);
+
+        boolean[] thisWalls = new boolean[]{true, true, true, true};
+        boolean[] nextWalls = new boolean[]{true, true, true, true};
+
+        //top
+        if (this.y - next.y == 1 && this.x - next.x == 0) {
+            thisWalls[0]=false;
+            nextWalls[2]=false;
+            System.out.println("top");
+        }
+        //right
+        if (this.x - next.x == -1 && this.y -next.y == 0 ) {
+            thisWalls[1]=false;
+            nextWalls[3]=false;
+            System.out.println("right");
+        }
+
+        //bottom
+        if (this.y - next.y == - 1 && this.x - next.x == 0) {
+            thisWalls[2]=false;
+            nextWalls[0]=false;
+            System.out.println("bottom");
+        }
+
+        //left
+        if (this.x - next.x == 1 && this.y -next.y == 0) {
+            thisWalls[3]=false;
+            nextWalls[1]=false;
+            System.out.println("left");
+        }
+
+        this.setWalls(thisWalls);
+        next.setWalls(nextWalls);
+
+    }
+
 
     @Override
     public void actionPerformed(ActionEvent e) {
