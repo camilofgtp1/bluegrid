@@ -1,5 +1,4 @@
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 import java.awt.event.ActionEvent;
@@ -30,35 +29,47 @@ public class Maze implements Runnable, ActionListener {
     private MouseSolver mouse;
 
     private final int margin;
+    private JLayeredPane jLayeredPane;
+
 
 //@todo: define end of generating
     public Maze(int cols, int row, int size, int startX, int startY, int strokeWidth) {
 
+        this.strokeWidth = strokeWidth;
+
         appWindow = new JFrame("Grid");
         backgroundPanel = new JPanel();
-        this.strokeWidth = strokeWidth;
         appWindow.add(backgroundPanel);
+        jLayeredPane= new JLayeredPane();
+        //appWindow.add(jLayeredPane);
 
         margin = 100;
         backgroundPanel.setBackground(Color.BLACK);
 
-        columns = cols;  //j
-        rows = row;   //i
+        columns = cols;
+        rows = row;
         cellSize = size;
 
         currentX = startX;
         currentY = startY;
         this.stack= new Stack<>();
 
-        mouse = new MouseSolver("spritesheet.png");
-
+        mouse = new MouseSolver();
         windowSize = new Dimension((rows * cellSize), (columns * cellSize));
         running = true;
         gridList = new Cell[rows][columns];
         gridLines = new GridLayout(rows, columns, 0, 0);
         backgroundPanel.setLayout(gridLines);
-        appWindow.add(backgroundPanel);
 
+        appWindow.add(mouse);
+//
+//        jLayeredPane.setPreferredSize(windowSize);
+//        backgroundPanel.setOpaque(true);
+//        mouse.setOpaque(true);
+//        jLayeredPane.add(backgroundPanel, 1);
+//        jLayeredPane.setBounds(0,0, windowSize.width, windowSize.height);
+//        jLayeredPane.add(mouse, 2);
+//        jLayeredPane.setVisible(true);
 
         for (int i = 0; i < this.rows; i++) { //rows are horizontal and correspond to the y axis
             for (int j = 0; j < columns; j++) { // cols are vertical correspond to the x axis
@@ -73,13 +84,12 @@ public class Maze implements Runnable, ActionListener {
             }
         }
 
-        appWindow.setVisible(true);
         appWindow.setLocationRelativeTo(null);
         appWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        appWindow.setResizable(false);
+        appWindow.setResizable(true);
         appWindow.setPreferredSize(windowSize);
-//        appWindow.setMaximumSize(new Dimension(2000, 2000));
         appWindow.pack();
+        appWindow.setVisible(true);
 
         currentCell = gridList[currentY][currentX];
     }
@@ -134,12 +144,13 @@ public class Maze implements Runnable, ActionListener {
             }
 
             try {
-                Thread.sleep(100);
+                Thread.sleep(10);
             } catch (InterruptedException e){
                 e.printStackTrace();
             }
 
         }
+
     }
 
     @Override

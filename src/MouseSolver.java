@@ -1,30 +1,34 @@
 import javax.imageio.ImageIO;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Vector;
 
-public class MouseSolver {
+public class MouseSolver extends JPanel implements ActionListener {
 
     private BufferedImage mouse;
-    /*private Vector positionX;
-    private Vector positionY;
-    private Vector speedX;
-    private Vector speedY;
-*/
-        public MouseSolver(String path){
+    private ArrayList<BufferedImage> walk;
+    private int width;
+    private int height;
+    private BufferedImage sprite;
+    private int xPos;
+    private int yPos;
+    public Timer timer;
 
-            this.mouse=this.loadImage(path);
-       /*     positionX= new Vector();
-            positionY= new Vector();
-            speedX= new Vector();
-            speedY= new Vector();
+        public MouseSolver(){
 
-            positionX.addElement(0.0);
-            positionY.addElement(0.0);
-            speedX.addElement(2.0);
-            speedY.addElement(2.0);*/
-
+            this.mouse=this.loadImage("spritesheet.png");
+            width= mouse.getWidth();
+            height= mouse.getHeight();
+            xPos=0;
+            yPos=0;
+            walk= new ArrayList<>();
+            sprite = this.mouse.getSubimage((1) , (1) , width/5, ((height/2)/5));
+            walk.add(sprite);
+            timer = new Timer(4, this);
         }
 
         public BufferedImage loadImage(String path){
@@ -37,12 +41,20 @@ public class MouseSolver {
             return this.mouse;
         }
 
-        public BufferedImage grabSprite(int col, int row, int width, int height ){
-            BufferedImage img = this.mouse.getSubimage((col*width) -width, (row*height) -height, width, height);
+        public void paintComponent(Graphics g){
+            timer.start();
 
-            return img;
+            try{
+                Graphics2D g1 = (Graphics2D) g;
+                g1.drawImage(walk.get(0),   xPos, yPos, null);
+            }catch (NullPointerException e){
+                    e.printStackTrace();
+            }
 
         }
 
+    @Override
+    public void actionPerformed(ActionEvent e) {
 
+    }
 }

@@ -101,10 +101,6 @@ public class Cell extends JPanel implements ActionListener {
 
     }
 
-    public void perlinNoise(){
-
-    }
-
     public void markVisited() {
         this.visited = true;
     }
