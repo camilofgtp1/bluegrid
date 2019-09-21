@@ -1,5 +1,5 @@
-import javax.swing.JFrame;
-import javax.swing.JPanel;
+import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 import java.awt.*;
 
 import java.awt.event.ActionEvent;
@@ -27,7 +27,11 @@ public class Maze implements Runnable, ActionListener {
 
     private Stack<Cell> stack;
 
+    private MouseSolver mouse;
 
+    private final int margin;
+
+//@todo: define end of generating
     public Maze(int cols, int row, int size, int startX, int startY, int strokeWidth) {
 
         appWindow = new JFrame("Grid");
@@ -35,6 +39,7 @@ public class Maze implements Runnable, ActionListener {
         this.strokeWidth = strokeWidth;
         appWindow.add(backgroundPanel);
 
+        margin = 100;
         backgroundPanel.setBackground(Color.BLACK);
 
         columns = cols;  //j
@@ -45,24 +50,21 @@ public class Maze implements Runnable, ActionListener {
         currentY = startY;
         this.stack= new Stack<>();
 
+        mouse = new MouseSolver("spritesheet.png");
+
         windowSize = new Dimension((rows * cellSize), (columns * cellSize));
         running = true;
-
         gridList = new Cell[rows][columns];
-
         gridLines = new GridLayout(rows, columns, 0, 0);
-        System.out.println(gridLines.toString() + " grid string");
-        //rows, cols, hgap, vgap
         backgroundPanel.setLayout(gridLines);
-
         appWindow.add(backgroundPanel);
+
 
         for (int i = 0; i < this.rows; i++) { //rows are horizontal and correspond to the y axis
             for (int j = 0; j < columns; j++) { // cols are vertical correspond to the x axis
 
                 Cell clonerCell = new Cell(cellSize, j, i, this.strokeWidth);
 
-                clonerCell.repaint();
                 //add newly created cells to the arraylists<Cell>
                 gridList[i][j] = clonerCell;
 
@@ -74,48 +76,68 @@ public class Maze implements Runnable, ActionListener {
         appWindow.setVisible(true);
         appWindow.setLocationRelativeTo(null);
         appWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        appWindow.setResizable(true);
+        appWindow.setResizable(false);
         appWindow.setPreferredSize(windowSize);
+//        appWindow.setMaximumSize(new Dimension(2000, 2000));
         appWindow.pack();
 
         currentCell = gridList[currentY][currentX];
     }
 
+    public int getUnvisited(){
+
+        int counter =0;
+        for(int i = 0; i<gridList.length;i++ ){
+            for (int j =0;j<gridList[i].length;j++){
+                if (gridList[i][j].isVisited() == false){
+                    counter++;
+                }
+            }
+        }
+
+        return counter;
+    }
 
 
     @Override
     public void run() throws NullPointerException {
 
-        //@TODO: Optimize loop
-        //define and color first cell
+        //Step 1 mark first cell as visited
         currentCell.markVisited();
 
-        //Choose next random cell, make it current
-        while (running) {
-            nextCell = currentCell.getNextCell(gridList);
-            stack.push(nextCell);
+        // 2. while there are unvisited cells
+        while (this.getUnvisited()>0) {
+
+            //3. choose random neighbor
+            try {
+                nextCell = currentCell.getNextCell(gridList);
 
             if (nextCell != null) {
-                currentCell.connect(nextCell);
-                currentCell.markVisited();
-                currentCell.repaint();
-                System.out.println("top "+ currentCell.getWalls()[0]);
-                System.out.println("right "+ currentCell.getWalls()[1]);
-                System.out.println("bottom "+ currentCell.getWalls()[2]);
-                System.out.println("left "+ currentCell.getWalls()[3 ]);
+                //4.push current to stack
+                 stack.push(nextCell);
 
+                //5. remove walls between neighbors
+                currentCell.connect(nextCell);
+
+                //6. make the chosen cell the current cell and mark it as visited
+                currentCell=nextCell;
+                currentCell.markVisited();
+
+               //7. if stack is not empty pop a cell and make it the current
+            } else if(!stack.empty()) {
+               currentCell = stack.pop();
+               nextCell = currentCell.getNextCell(gridList);
             }
-            if(stack.contains(nextCell)){
-                currentCell = nextCell;
+            } catch (NullPointerException e){
+                System.out.println(e.getMessage() + "");
+
             }
 
             try {
-                Thread.sleep(2500);
+                Thread.sleep(100);
             } catch (InterruptedException e){
                 e.printStackTrace();
             }
-
-            System.out.println("******************************End*****************************************");
 
         }
     }

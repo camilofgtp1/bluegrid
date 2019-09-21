@@ -9,6 +9,11 @@ import java.util.Random;
 
 public class Cell extends JPanel implements ActionListener {
 
+    private int x;
+    private int y;
+    private boolean[] walls;
+    private boolean visited; //paint cyan
+
     private Line2D top;
     private Line2D right;
     private Line2D bottom;
@@ -16,43 +21,35 @@ public class Cell extends JPanel implements ActionListener {
 
     private int strokeWidth;
     private int size;
-    private int x;
-    private int y;
-
-    private boolean[] walls;
-    private boolean visited; //paint cyan
     private boolean current; //paint red
-
-    private final int MARGIN;
-
-
     private ArrayList<Line2D> cellSides;
-
     private Timer timer;
 
     Cell(int size, int x, int y, int stroke) {
 
+
         this.x = x;
         this.y = y;
+        this.size = size;
         this.strokeWidth = stroke;
         cellSides= new ArrayList<>();
+        this.timer = new Timer(5, this);
 
-        top = new Line2D.Float(0, 0, size-strokeWidth, 0);
-        right = new Line2D.Float(size, 0, size, size);
-        bottom = new Line2D.Float(size, size, 0, size);
-        left = new Line2D.Float(0, size, 0, 0);
+        top = new Line2D.Float(0, 0, this.size, 0);
+        right = new Line2D.Float(this.size, 0, this.size, this.size);
+        bottom = new Line2D.Float(this.size, this.size, 0, this.size);
+        left = new Line2D.Float(0, this.size, 0, 0);
         cellSides.add(top);
         cellSides.add(right);
         cellSides.add(bottom);
         cellSides.add(left);
-        
-        this.size = size;
-        this.timer = new Timer(5, this);
+
         walls = new boolean[]{true, true, true, true};
         visited = false;
         current = false;
 
-        this.setPreferredSize(new Dimension(size, size));
+        this.setMinimumSize(new Dimension(this.size, this.size));
+        this.setPreferredSize(new Dimension(this.size, this.size));
     }
 
     //return a list of unvisited Cells around this Cell calling it
@@ -61,44 +58,51 @@ public class Cell extends JPanel implements ActionListener {
         Cell[] freePositions = new Cell[4];
         Cell nextCell = null;
 
-        int currentX = this.x;
-        int currentY = this.y;
-
         Cell top, right, bottom, left;
 
-        if (currentY == 0) top = null;
-        else top = gridList[currentY - 1][currentX];
+        if (this.y == 0) top = null;
+        else top = gridList[this.y - 1][this.x];
+
         if (top != null && !top.visited) freePositions[0] = top;
 
-        if (currentX == gridList.length - 1) right = null;
-        else right = gridList[currentY][currentX + 1];
+        if (this.x == gridList[0].length - 1) right = null;
+        else right = gridList[this.y][this.x + 1];
+
         if (right != null && !right.visited) freePositions[1] = right;
 
-        if (currentY == gridList[0].length - 1) bottom = null;
-        else bottom = gridList[currentY + 1][currentX];
+        if (this.y == gridList[0].length - 1) bottom = null;
+        else bottom = gridList[this.y + 1][this.x];
         if (bottom != null && !bottom.visited) freePositions[2] = bottom;
 
-        if (currentX == 0) left = null;
-        else left = gridList[currentY][currentX - 1];
+        if (this.x == 0) left = null;
+        else left = gridList[this.y][this.x - 1];
         if (left != null && !left.visited) freePositions[3] = left;
 
-        while (nextCell == null) {
-            nextCell = chooseRandom(freePositions);
-        }
 
-        return nextCell;
+        nextCell = chooseRandom(freePositions);
+
+        if (nextCell != null) return nextCell;
+        return null;
     }
 
 
     public static Cell chooseRandom(Cell[] list) {
-        Random r = new Random();
-        int rand = r.nextInt(4);
-        while (list[rand] == null) {
-            rand = r.nextInt(4);
 
-            return list[rand];
+        Random r = new Random();
+        int rand;
+
+        for(int i=0; i<10;i++){
+            rand = r.nextInt(4);
+            if(list[rand] != null) {
+                return  list[rand];
+            }
         }
-        return list[rand];
+        return null;
+
+    }
+
+    public void perlinNoise(){
+
     }
 
     public void markVisited() {
@@ -110,6 +114,10 @@ public class Cell extends JPanel implements ActionListener {
         else this.current = false;
     }
 
+    public boolean isVisited(){
+        return this.visited;
+    }
+
     public boolean[] getWalls() {
         return walls;
     }
@@ -119,24 +127,6 @@ public class Cell extends JPanel implements ActionListener {
         this.walls = walls;
     }
 
-    /*public void toggleStart() {
-        if (!this.current) this.current = true;
-        else this.current = false;
-    }*/
-    public int x() {
-        return this.x;
-    }
-
-    public int y() {
-        return this.y;
-    }
-
-    public int getStrokeWidth() {
-        return this.strokeWidth;
-    }
-
-
-
     public void paintComponent(Graphics g) {
         timer.start();
 
@@ -145,9 +135,8 @@ public class Cell extends JPanel implements ActionListener {
         g1.setStroke(new BasicStroke(this.strokeWidth));
 
         if (visited == true) {
-            //g1.setColor(Color.CYAN);
-            //g1.fillRect(2, 2, size - 3, size - 3);
-            this.setBackground(Color.orange);
+            g1.setColor(Color.CYAN);
+            g1.fillRect(0, 0, size , size );
 
         }
         if (current == true) {
@@ -158,6 +147,9 @@ public class Cell extends JPanel implements ActionListener {
         for (int i =0; i <walls.length;i++){
 
             if(walls[i]==true){
+                if(i==0 && walls[1]==false){
+
+                }
                 g1.setColor(Color.blue);
                 g1.draw(cellSides.get(i));
             } else {
@@ -170,41 +162,34 @@ public class Cell extends JPanel implements ActionListener {
 
     public void connect(Cell next) {
 
-        System.out.println("this x :" + this.x + " next x: " + next.x);
-        System.out.println("this y : " + this.y + " next y: " + next.y);
-
-        boolean[] thisWalls = new boolean[]{true, true, true, true};
-        boolean[] nextWalls = new boolean[]{true, true, true, true};
+//        System.out.println("this x :" + this.x + " next x: " + next.x);
+//        System.out.println("this y : " + this.y + " next y: " + next.y);
 
         //top
         if (this.y - next.y == 1 && this.x - next.x == 0) {
-            thisWalls[0]=false;
-            nextWalls[2]=false;
-            System.out.println("top");
+            this.walls[0]=false;
+            next.walls[2]=false;
         }
         //right
         if (this.x - next.x == -1 && this.y -next.y == 0 ) {
-            thisWalls[1]=false;
-            nextWalls[3]=false;
-            System.out.println("right");
+            this.walls[1]=false;
+            next.walls[3]=false;
         }
 
         //bottom
         if (this.y - next.y == - 1 && this.x - next.x == 0) {
-            thisWalls[2]=false;
-            nextWalls[0]=false;
-            System.out.println("bottom");
+            this.walls[2]=false;
+            next.walls[0]=false;
         }
 
         //left
         if (this.x - next.x == 1 && this.y -next.y == 0) {
-            thisWalls[3]=false;
-            nextWalls[1]=false;
-            System.out.println("left");
+            this.walls[3]=false;
+            next.walls[1]=false;
         }
 
-        this.setWalls(thisWalls);
-        next.setWalls(nextWalls);
+        this.repaint();
+        next.repaint();
 
     }
 
