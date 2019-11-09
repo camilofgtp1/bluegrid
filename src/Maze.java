@@ -3,6 +3,7 @@ import java.awt.*;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.util.Stack;
 
 public class Maze implements Runnable, ActionListener {
@@ -25,51 +26,46 @@ public class Maze implements Runnable, ActionListener {
     private Cell nextCell;
 
     private Stack<Cell> stack;
-
     private MouseSolver mouse;
-
-    private final int margin;
     private JLayeredPane jLayeredPane;
 
 
 //@todo: define end of generating
     public Maze(int cols, int row, int size, int startX, int startY, int strokeWidth) {
 
+        /*
+        * appWindow --> JFrame
+        *
+        * background --> JPanel
+        * JLayeredPanel --> JLayeredPanel
+        *
+        * mouse -> Jpanel
+        * */
+        rows = row;
+        columns = cols;
+        cellSize = size;
+        windowSize = new Dimension((rows * cellSize), (columns * cellSize));
+
         this.strokeWidth = strokeWidth;
 
+        //window
         appWindow = new JFrame("Grid");
-        backgroundPanel = new JPanel();
-        appWindow.add(backgroundPanel);
-        jLayeredPane= new JLayeredPane();
-        //appWindow.add(jLayeredPane);
 
-        margin = 100;
-        backgroundPanel.setBackground(Color.BLACK);
+        //background and layoutManager
+        backgroundPanel = new JPanel(new GridLayout(rows, columns, 0, 0));
+        backgroundPanel.setPreferredSize(windowSize);
 
-        columns = cols;
-        rows = row;
-        cellSize = size;
+        mouse = new MouseSolver();
+
+        appWindow.add(backgroundPanel, 0);
+        appWindow.add(mouse, 0);
 
         currentX = startX;
         currentY = startY;
         this.stack= new Stack<>();
 
-        mouse = new MouseSolver();
-        windowSize = new Dimension((rows * cellSize), (columns * cellSize));
         running = true;
         gridList = new Cell[rows][columns];
-        gridLines = new GridLayout(rows, columns, 0, 0);
-        backgroundPanel.setLayout(gridLines);
-
-        appWindow.add(mouse);
-//
-//        jLayeredPane.setPreferredSize(windowSize);
-//        backgroundPanel.setOpaque(true);
-//        mouse.setOpaque(true);
-//        jLayeredPane.add(backgroundPanel, 1);
-//        jLayeredPane.setBounds(0,0, windowSize.width, windowSize.height);
-//        jLayeredPane.add(mouse, 2);
-//        jLayeredPane.setVisible(true);
 
         for (int i = 0; i < this.rows; i++) { //rows are horizontal and correspond to the y axis
             for (int j = 0; j < columns; j++) { // cols are vertical correspond to the x axis
@@ -139,8 +135,7 @@ public class Maze implements Runnable, ActionListener {
                nextCell = currentCell.getNextCell(gridList);
             }
             } catch (NullPointerException e){
-                System.out.println(e.getMessage() + "");
-
+                System.out.println(e.getMessage());
             }
 
             try {
@@ -150,6 +145,9 @@ public class Maze implements Runnable, ActionListener {
             }
 
         }
+
+
+
 
     }
 

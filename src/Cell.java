@@ -27,7 +27,6 @@ public class Cell extends JPanel implements ActionListener {
 
     Cell(int size, int x, int y, int stroke) {
 
-
         this.x = x;
         this.y = y;
         this.size = size;
@@ -35,6 +34,7 @@ public class Cell extends JPanel implements ActionListener {
         cellSides= new ArrayList<>();
         this.timer = new Timer(5, this);
 
+        //add nodes object to connect the lines that make the cell
         top = new Line2D.Float(0, 0, this.size, 0);
         right = new Line2D.Float(this.size, 0, this.size, this.size);
         bottom = new Line2D.Float(this.size, this.size, 0, this.size);
@@ -124,6 +124,8 @@ public class Cell extends JPanel implements ActionListener {
     }
 
     public void paintComponent(Graphics g) {
+
+        super.paintComponent(g);
         timer.start();
 
         Graphics2D g1 = (Graphics2D) g;
