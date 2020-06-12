@@ -29,36 +29,40 @@ public class Maze implements Runnable, ActionListener {
     private MouseSolver mouse;
     private JLayeredPane jLayeredPane;
 
-
-//@todo: define end of generating
     public Maze(int cols, int row, int size, int startX, int startY, int strokeWidth) {
 
-        /*
-        * appWindow --> JFrame
-        *
-        * background --> JPanel
-        * JLayeredPanel --> JLayeredPanel
-        *
-        * mouse -> Jpanel
-        * */
         rows = row;
         columns = cols;
         cellSize = size;
+
         windowSize = new Dimension((rows * cellSize), (columns * cellSize));
+        Dimension backSize =  new Dimension((rows * cellSize+80), (columns * cellSize+80));
+        Dimension layeredSize =  new Dimension((rows * cellSize+80), (columns * cellSize+80));
+        Dimension mouseSize = new Dimension(cellSize, cellSize);
 
         this.strokeWidth = strokeWidth;
 
         //window
         appWindow = new JFrame("Grid");
+        appWindow.setPreferredSize(windowSize);
+
+        jLayeredPane = new JLayeredPane();
+        jLayeredPane.setPreferredSize(layeredSize);
 
         //background and layoutManager
-        backgroundPanel = new JPanel(new GridLayout(rows, columns, 0, 0));
-        backgroundPanel.setPreferredSize(windowSize);
+        GridLayout gridLayout = new GridLayout(rows, columns, 0, 0);
 
-        mouse = new MouseSolver();
+        backgroundPanel = new JPanel(gridLayout);
 
-        appWindow.add(backgroundPanel, 0);
-        appWindow.add(mouse, 0);
+        backgroundPanel.setPreferredSize(backSize);
+
+        //mouse = new MouseSolver(cellSize);
+
+        appWindow.add(jLayeredPane);
+        appWindow.add(backgroundPanel);
+        //jLayeredPane.add(backgroundPanel);
+        //jLayeredPane.add(mouse, JLayeredPane.PALETTE_LAYER);
+        //backgroundPanel.add(mouse);
 
         currentX = startX;
         currentY = startY;
@@ -82,7 +86,7 @@ public class Maze implements Runnable, ActionListener {
 
         appWindow.setLocationRelativeTo(null);
         appWindow.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        appWindow.setResizable(true);
+        appWindow.setResizable(false);
         appWindow.setPreferredSize(windowSize);
         appWindow.pack();
         appWindow.setVisible(true);
@@ -93,9 +97,9 @@ public class Maze implements Runnable, ActionListener {
     public int getUnvisited(){
 
         int counter =0;
-        for(int i = 0; i<gridList.length;i++ ){
-            for (int j =0;j<gridList[i].length;j++){
-                if (gridList[i][j].isVisited() == false){
+        for (Cell[] cells : gridList) {
+            for (Cell cell : cells) {
+                if (!cell.isVisited()) {
                     counter++;
                 }
             }
@@ -116,8 +120,9 @@ public class Maze implements Runnable, ActionListener {
 
             //3. choose random neighbor
             try {
-                nextCell = currentCell.getNextCell(gridList);
 
+                nextCell = currentCell.getNextCell(gridList);
+                nextCell.toggleCurrent();
             if (nextCell != null) {
                 //4.push current to stack
                  stack.push(nextCell);
@@ -127,11 +132,13 @@ public class Maze implements Runnable, ActionListener {
 
                 //6. make the chosen cell the current cell and mark it as visited
                 currentCell=nextCell;
+
                 currentCell.markVisited();
 
                //7. if stack is not empty pop a cell and make it the current
             } else if(!stack.empty()) {
                currentCell = stack.pop();
+
                nextCell = currentCell.getNextCell(gridList);
             }
             } catch (NullPointerException e){
@@ -143,11 +150,7 @@ public class Maze implements Runnable, ActionListener {
             } catch (InterruptedException e){
                 e.printStackTrace();
             }
-
         }
-
-
-
 
     }
 

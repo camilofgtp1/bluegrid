@@ -22,7 +22,7 @@ public class MouseSolver extends JPanel implements ActionListener, KeyListener {
 
     public Timer timer;
 
-    public MouseSolver() {
+    public MouseSolver(int cellSize) {
 
         this.spritesheet = this.loadImage("spritesheet.png");
         width = spritesheet.getWidth();
@@ -41,7 +41,7 @@ public class MouseSolver extends JPanel implements ActionListener, KeyListener {
         setFocusable(true);
         setFocusTraversalKeysEnabled(false);
 
-        this.setMaximumSize(new Dimension(this.mouse.getHeight(), this.mouse.getWidth()));
+        this.setMaximumSize(new Dimension(cellSize, cellSize));
     }
 
     public BufferedImage loadImage(String path) {
@@ -95,7 +95,6 @@ public class MouseSolver extends JPanel implements ActionListener, KeyListener {
                 System.out.println("RIGHT");
                 break;
             case KeyEvent.VK_DOWN:
-
                 this.yPos += 2;
                 System.out.println("DOWN");
                 break;

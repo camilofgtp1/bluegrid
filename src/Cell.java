@@ -81,8 +81,7 @@ public class Cell extends JPanel implements ActionListener {
 
         nextCell = chooseRandom(freePositions);
 
-        if (nextCell != null) return nextCell;
-        return null;
+        return nextCell;
     }
 
 
@@ -106,8 +105,7 @@ public class Cell extends JPanel implements ActionListener {
     }
 
     public void toggleCurrent() {
-        if (!this.current) this.current = true;
-        else this.current = false;
+        this.current = !this.current;
     }
 
     public boolean isVisited(){
@@ -132,36 +130,31 @@ public class Cell extends JPanel implements ActionListener {
         g1.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
         g1.setStroke(new BasicStroke(this.strokeWidth));
 
-        if (visited == true) {
+
+        if (current) {
+            g1.setColor(Color.red);
+            g1.fillRect(2, 2, size - 3, size - 3);
+        }
+        if (visited) {
             g1.setColor(Color.CYAN);
             g1.fillRect(0, 0, size , size );
 
         }
-        if (current == true) {
-            g1.setColor(Color.red);
-            g1.fillRect(2, 2, size - 3, size - 3);
-        }
+
 
         for (int i =0; i <walls.length;i++){
 
-            if(walls[i]==true){
-                if(i==0 && walls[1]==false){
-
-                }
+            if(walls[i]){
                 g1.setColor(Color.blue);
-                g1.draw(cellSides.get(i));
             } else {
                 g1.setColor(Color.cyan);
-                g1.draw(cellSides.get(i));
             }
+            g1.draw(cellSides.get(i));
         }
     }
 
 
     public void connect(Cell next) {
-
-//        System.out.println("this x :" + this.x + " next x: " + next.x);
-//        System.out.println("this y : " + this.y + " next y: " + next.y);
 
         //top
         if (this.y - next.y == 1 && this.x - next.x == 0) {
@@ -173,7 +166,6 @@ public class Cell extends JPanel implements ActionListener {
             this.walls[1]=false;
             next.walls[3]=false;
         }
-
         //bottom
         if (this.y - next.y == - 1 && this.x - next.x == 0) {
             this.walls[2]=false;
